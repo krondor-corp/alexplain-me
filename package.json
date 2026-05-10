@@ -1,0 +1,20 @@
+{
+  "name": "krondor-alexplain",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "build:dev": "confit run app --upper -- turbo run build --env-mode=loose",
+    "dev": "confit run app --upper -- turbo run dev --env-mode=loose",
+    "check": "turbo run check",
+    "types": "turbo run types",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "turbo": "^2.7.3"
+  }
+}

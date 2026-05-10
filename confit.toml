@@ -1,0 +1,10 @@
+[providers.op]
+cmd = "op read {uri}"
+
+[vars]
+stage = "development"
+project = "krondor-sites"
+vault_slug = "{vars.project}-{vars.stage}"
+
+[app]
+jax_gateway = "http://localhost:8080"
