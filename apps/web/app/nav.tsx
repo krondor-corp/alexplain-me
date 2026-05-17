@@ -61,7 +61,7 @@ function SpotifyIcon() {
 
 const socials = [
   {
-    href: "https://www.instagram.com/alexplain_me",
+    href: "https://www.instagram.com/alexplain.me",
     icon: InstagramIcon,
     label: "Instagram",
   },
