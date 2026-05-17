@@ -343,7 +343,7 @@ ${safeMeta.length ? `<div class="meta">${safeMeta.join(" &middot; ")}</div>` : "
 </body></html>`);
     w.document.close();
     w.print();
-  }, [title, meta, html, chordDefinitions]);
+  }, [title, transpose, meta, html, chordDefinitions]);
 
   useEffect(() => {
     if (!showQr) return;
