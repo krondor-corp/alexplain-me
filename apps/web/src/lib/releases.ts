@@ -48,10 +48,8 @@ export async function getReleases(): Promise<Release[]> {
   const audioExtensions = /\.(mp3|m4a|wav|ogg)$/i;
   const artNames = new Set(["art.png", "art.jpg", "art.jpeg"]);
 
-  const releaseMap = new Map<
-    string,
-    { artUrl?: string; tracks: { name: string; url: string }[] }
-  >();
+  type RawTrack = { name: string; filename: string; url: string };
+  const releaseMap = new Map<string, { artUrl?: string; tracks: RawTrack[] }>();
 
   for (const entry of listing.entries) {
     if (entry.mime_type === "inode/directory") continue;
@@ -71,20 +69,24 @@ export async function getReleases(): Promise<Release[]> {
     } else if (audioExtensions.test(entry.name)) {
       release.tracks.push({
         name: formatTrackName(entry.name),
+        filename: entry.name,
         url: jax.fileUrl(fullPath),
       });
     }
   }
 
+  // Sort by raw filename so leading "01-", "02-" prefixes preserve track order.
+  // Files without numeric prefixes fall back to alphabetical, which is fine.
+  const collator = new Intl.Collator(undefined, { numeric: true });
   const releases: Release[] = [];
   for (const [slug, data] of releaseMap) {
     if (data.tracks.length === 0) continue;
-    data.tracks.sort((a, b) => a.name.localeCompare(b.name));
+    data.tracks.sort((a, b) => collator.compare(a.filename, b.filename));
     releases.push({
       slug,
       name: formatReleaseName(slug),
       artUrl: data.artUrl,
-      tracks: data.tracks,
+      tracks: data.tracks.map(({ name, url }) => ({ name, url })),
     });
   }
 
