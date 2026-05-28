@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAudio } from "../audio-context";
 import {
   ChevronDownIcon,
@@ -22,6 +21,23 @@ type Release = {
 export function ReleaseTable({ releases }: { releases: Release[] }) {
   const { track: currentTrack, playing, playQueue, toggle } = useAudio();
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const copyTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    const applyHash = () => {
+      const slug = window.location.hash.replace(/^#/, "");
+      if (!slug) return;
+      if (releases.some((r) => r.slug === slug)) {
+        setExpanded(slug);
+        const el = document.getElementById(slug);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, [releases]);
 
   return (
     <div className="border-y border-border">
@@ -35,7 +51,8 @@ export function ReleaseTable({ releases }: { releases: Release[] }) {
         return (
           <div
             key={release.slug}
-            className="border-b border-border last:border-b-0"
+            id={release.slug}
+            className="border-b border-border last:border-b-0 scroll-mt-4"
           >
             <div
               className="flex items-center gap-4 px-3 py-3 hover:bg-accent/50 cursor-pointer transition-colors"
@@ -90,15 +107,33 @@ export function ReleaseTable({ releases }: { releases: Release[] }) {
                 )}
               </button>
 
-              <Link
-                href={`/releases/${release.slug}`}
-                onClick={(e) => e.stopPropagation()}
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const url = `${window.location.origin}/releases#${release.slug}`;
+                  try {
+                    await navigator.clipboard.writeText(url);
+                  } catch {
+                    return;
+                  }
+                  setCopiedSlug(release.slug);
+                  if (copyTimeout.current) clearTimeout(copyTimeout.current);
+                  copyTimeout.current = setTimeout(
+                    () => setCopiedSlug(null),
+                    1500,
+                  );
+                }}
                 className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                title="Open release"
-                aria-label={`Open ${release.name}`}
+                title="Copy link"
+                aria-label={`Copy link to ${release.name}`}
               >
-                <LinkIcon size={16} />
-              </Link>
+                {copiedSlug === release.slug ? (
+                  <span className="text-xs">copied</span>
+                ) : (
+                  <LinkIcon size={16} />
+                )}
+              </button>
 
               <span
                 className={`shrink-0 text-muted-foreground transition-transform ${
