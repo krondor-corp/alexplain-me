@@ -1,9 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { useAudio } from "../audio-context";
-import { ChevronDownIcon, DownloadIcon, PauseIcon, PlayIcon } from "../icons";
+import {
+  ChevronDownIcon,
+  DownloadIcon,
+  LinkIcon,
+  PauseIcon,
+  PlayIcon,
+} from "../icons";
 
 type Release = {
   slug: string;
@@ -82,6 +89,16 @@ export function ReleaseTable({ releases }: { releases: Release[] }) {
                   <PlayIcon size={14} />
                 )}
               </button>
+
+              <Link
+                href={`/releases/${release.slug}`}
+                onClick={(e) => e.stopPropagation()}
+                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                title="Open release"
+                aria-label={`Open ${release.name}`}
+              >
+                <LinkIcon size={16} />
+              </Link>
 
               <span
                 className={`shrink-0 text-muted-foreground transition-transform ${
